@@ -3,39 +3,46 @@
   "locale": "en_US.UTF-8",
   "metadata": {
     "appmode": "shiny",
-    "entrypoint": "ui.R"
+    "entrypoint": "app.R"
   },
   "packages": {
     "R": [
       {
         "package": "shiny",
-        "version": "1.7.4"
+        "version": "1.7.4",
+        "source": "CRAN"
       },
       {
-        "package": "shinydashboard",
-        "version": "0.7.2"
+        "package": "shinydashboard", 
+        "version": "0.7.2",
+        "source": "CRAN"
       },
       {
         "package": "DT",
-        "version": "0.28"
+        "version": "0.28",
+        "source": "CRAN"
       },
       {
         "package": "plotly",
-        "version": "4.10.2"
+        "version": "4.10.2",
+        "source": "CRAN"
       },
       {
         "package": "fastcpd",
-        "version": "0.18.0"
+        "version": "0.18.0",
+        "source": "CRAN"
       }
     ]
   },
   "files": {
+    "app.R": {
+      "checksum": "5d41402abc4b2a76b9719d911017c592"
+    },
     "ui.R": {
       "checksum": "5d41402abc4b2a76b9719d911017c592"
     },
     "server.R": {
       "checksum": "5d41402abc4b2a76b9719d911017c592"
     }
-  },
-  "users": null
+  }
 }
