@@ -2832,7 +2832,7 @@
       "checksum": "6dccb563edfb40b23040efcd654f7fca"
     },
     "app.R": {
-      "checksum": "3c9b7d61a3370c6f92eb2eb13208690d"
+      "checksum": "1df28794d1007c4623b71b53eec8dcd3"
     },
     "DESCRIPTION": {
       "checksum": "5331e4d49e7001eba5a6ad7ad405b0a8"
@@ -2857,9 +2857,6 @@
     },
     "server.R": {
       "checksum": "f92b35acc8dd2b0cc3abe1331f9d2ec5"
-    },
-    "ui.R": {
-      "checksum": "1df28794d1007c4623b71b53eec8dcd3"
     }
   },
   "users": null
