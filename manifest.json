@@ -2,6 +2,27 @@
   "version": 1,
   "appmode": "shiny",
   "content_category": "application",
+  "platform": "4.5.0",
+  "R": {
+    "version": "4.5.0"
+  },
+  "packages": {
+    "shiny": {
+      "source": "CRAN"
+    },
+    "shinydashboard": {
+      "source": "CRAN"
+    },
+    "DT": {
+      "source": "CRAN"
+    },
+    "plotly": {
+      "source": "CRAN"
+    },
+    "fastcpd": {
+      "source": "CRAN"
+    }
+  },
   "files": [
     "global.R",
     "server.R",
@@ -10,12 +31,5 @@
     "sample_data/linear_regression.csv",
     "sample_data/mean_change.csv",
     "sample_data/variance_change.csv"
-  ],
-  "packages": {
-    "shiny": { "source": "CRAN" },
-    "shinydashboard": { "source": "CRAN" },
-    "DT": { "source": "CRAN" },
-    "plotly": { "source": "CRAN" },
-    "fastcpd": { "source": "CRAN" }
-  }
+  ]
 }
