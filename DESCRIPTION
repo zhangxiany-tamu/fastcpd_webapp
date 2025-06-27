@@ -2,7 +2,7 @@ Package: fastcpdapp
 Title: fastcpd Web Application
 Version: 1.0.0
 Type: Shiny
-DisplayMode: Showcase
+DisplayMode: Normal
 Depends: R (>= 3.5.0)
 Imports:
     shiny,
