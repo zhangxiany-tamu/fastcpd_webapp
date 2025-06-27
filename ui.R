@@ -7,6 +7,7 @@ ui <- dashboardPage(
   dashboardHeader(title = "fastcpd"),
   
   dashboardSidebar(
+    width = 250,
     sidebarMenu(
       menuItem("Data Upload", tabName = "upload", icon = icon("upload")),
       menuItem("Analysis", tabName = "analysis", icon = icon("chart-line")),
@@ -152,6 +153,26 @@ ui <- dashboardPage(
         /* Plot styling */
         .plotly {
           width: 100% !important;
+        }
+        
+        /* Fix layout issues */
+        .content-wrapper {
+          min-height: calc(100vh - 50px);
+        }
+        
+        /* Hide any unwanted footer or extra content */
+        .main-footer {
+          display: none !important;
+        }
+        
+        /* Ensure proper page structure */
+        .wrapper {
+          min-height: 100vh;
+        }
+        
+        /* Fix any overflow issues */
+        body {
+          overflow-x: hidden;
         }
       "))
     ),
@@ -638,5 +659,7 @@ ui <- dashboardPage(
         )
       )
     )
-  )
+  ),
+  
+  skin = "black"
 )
