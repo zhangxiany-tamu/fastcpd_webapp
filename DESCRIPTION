@@ -1,8 +1,9 @@
 Title: fastcpd Web Application
 Type: Shiny
+DisplayMode: Showcase
 Imports:
-    shiny,
-    shinydashboard,
-    DT,
-    plotly,
-    fastcpd
+    shiny (>= 1.7.0),
+    shinydashboard (>= 0.7.0),
+    DT (>= 0.20),
+    plotly (>= 4.10.0),
+    fastcpd (>= 0.14.0)
