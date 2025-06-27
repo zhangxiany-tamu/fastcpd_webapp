@@ -2,6 +2,8 @@
 
 A Shiny web interface for the [fastcpd](https://github.com/doccstat/fastcpd) R package, providing an intuitive way to perform change point detection without programming.
 
+**🌐 [Try the live application](https://zhangxianyang.shinyapps.io/fastcpd_webapp/)**
+
 ## Features
 
 - **Interactive Interface**: Upload CSV data and configure analysis through a web dashboard
