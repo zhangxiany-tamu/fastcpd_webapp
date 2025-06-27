@@ -1,11 +1,6 @@
 # Files to ignore during Posit Cloud deployment
 .git
 .gitignore
+docs/
 *.md
-run_app.sh
-upload_to_github.sh
-install_packages.R
-IMPROVEMENTS.md
-PROJECT_STRUCTURE.md
-renv.lock
-deploy.R
+.Rprofile
