@@ -59,6 +59,17 @@ ui <- dashboardPage(
           letter-spacing: 0.5px;
         }
         
+        /* Sidebar toggle icon - make it white */
+        .navbar-toggle {
+          color: white !important;
+        }
+        .navbar-toggle:hover {
+          color: white !important;
+        }
+        .navbar-toggle .icon-bar {
+          background-color: white !important;
+        }
+        
         /* Sidebar - clean white */
         .main-sidebar {
           background: white !important;
