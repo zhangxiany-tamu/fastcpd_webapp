@@ -19,14 +19,139 @@ ui <- dashboardPage(
   dashboardBody(
     tags$head(
       tags$style(HTML("
+        /* Apple-inspired unified design */
         .content-wrapper, .right-side {
-          background-color: #f4f4f4;
+          background-color: #fbfbfd;
         }
+        
+        /* Clean box styling */
         .box {
-          border-radius: 5px;
+          border-radius: 12px;
+          box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+          border: 1px solid #e5e5e7;
+          background: white;
         }
+        
+        /* Unified header styling - all same color */
+        .box-header {
+          background: #1d1d1f;
+          border-radius: 12px 12px 0 0;
+          border: none;
+        }
+        .box-header .box-title {
+          color: white;
+          font-weight: 500;
+          font-size: 15px;
+          letter-spacing: 0.3px;
+        }
+        
+        /* Main header - same dark theme */
         .main-header .navbar {
-          background-color: #3c8dbc !important;
+          background: #1d1d1f !important;
+          border: none;
+          box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .main-header .navbar-brand {
+          color: white !important;
+          font-weight: 600;
+          font-size: 18px;
+          letter-spacing: 0.5px;
+        }
+        
+        /* Sidebar - clean white */
+        .main-sidebar {
+          background: white !important;
+          box-shadow: 1px 0 3px rgba(0,0,0,0.05);
+        }
+        .sidebar-menu > li > a {
+          color: #1d1d1f;
+          font-weight: 400;
+          border-bottom: 1px solid #f5f5f7;
+        }
+        .sidebar-menu > li.active > a {
+          background: #f5f5f7 !important;
+          color: #1d1d1f !important;
+          border-left: 3px solid #1d1d1f;
+        }
+        
+        /* Single accent color for interactive elements */
+        .btn-primary {
+          background: #1d1d1f;
+          border: none;
+          border-radius: 8px;
+          color: white !important;
+          font-weight: 600;
+          padding: 12px 24px;
+          font-size: 14px;
+          letter-spacing: 0.3px;
+          transition: all 0.2s ease;
+        }
+        .btn-primary:hover {
+          background: #515154;
+          color: white !important;
+          transform: translateY(-1px);
+          box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        .btn-primary:focus, .btn-primary:active {
+          background: #1d1d1f !important;
+          color: white !important;
+          box-shadow: 0 0 0 2px rgba(29,29,31,0.3);
+        }
+        
+        /* Typography */
+        h4, h5 {
+          color: #1d1d1f;
+          font-weight: 500;
+          letter-spacing: 0.3px;
+        }
+        .form-group label {
+          font-weight: 400;
+          color: #1d1d1f;
+          font-size: 14px;
+        }
+        
+        /* Minimal alerts */
+        .alert {
+          border-radius: 8px;
+          border: 1px solid #e5e5e7;
+          background: #f5f5f7;
+          color: #1d1d1f;
+        }
+        .alert-info, .alert-success, .alert-warning {
+          background: #f5f5f7;
+          border-color: #e5e5e7;
+          color: #1d1d1f;
+        }
+        
+        /* Clean form elements */
+        .well {
+          background-color: #f5f5f7;
+          border: 1px solid #e5e5e7;
+          border-radius: 8px;
+        }
+        .form-control {
+          border: 1px solid #d2d2d7;
+          border-radius: 6px;
+          transition: border-color 0.2s ease;
+        }
+        .form-control:focus {
+          border-color: #1d1d1f;
+          box-shadow: 0 0 0 2px rgba(29,29,31,0.1);
+        }
+        
+        /* Info boxes - unified styling */
+        .info-box {
+          border-radius: 8px;
+          box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+          border: 1px solid #e5e5e7;
+        }
+        .info-box-icon {
+          background: #1d1d1f !important;
+        }
+        
+        /* Plot styling */
+        .plotly {
+          width: 100% !important;
         }
       "))
     ),
@@ -36,7 +161,7 @@ ui <- dashboardPage(
       tabItem(tabName = "upload",
         fluidRow(
           box(
-            title = "Data Upload", status = "primary", solidHeader = TRUE, width = 12,
+            title = "Data Upload", solidHeader = TRUE, width = 12,
             fileInput("file", "Choose CSV File",
                      accept = c(".csv", ".txt"),
                      buttonLabel = "Browse...",
@@ -51,29 +176,52 @@ ui <- dashboardPage(
                         selected = '"')
           )
         ),
-        fluidRow(
-          box(
-            title = "Data Preview", status = "info", solidHeader = TRUE, width = 12,
-            DT::dataTableOutput("dataPreview")
-          )
-        ),
-        fluidRow(
-          box(
-            title = "Data Summary", status = "success", solidHeader = TRUE, width = 8,
-            verbatimTextOutput("dataSummary")
+        
+        # Only show data sections when data is uploaded
+        conditionalPanel(
+          condition = "output.dataUploaded",
+          fluidRow(
+            box(
+              title = "Data Preview", solidHeader = TRUE, width = 12,
+              DT::dataTableOutput("dataPreview")
+            )
           ),
-          box(
-            title = "Data Visualization", status = "info", solidHeader = TRUE, width = 4,
-            plotlyOutput("dataSummaryPlot", height = "300px")
+          fluidRow(
+            box(
+              title = "Data Summary", solidHeader = TRUE, width = 6,
+              verbatimTextOutput("dataSummary")
+            ),
+            box(
+              title = "Data Visualization", solidHeader = TRUE, width = 6,
+              plotlyOutput("dataSummaryPlot", height = "300px")
+            )
           )
         )
       ),
       
       # Analysis Tab
       tabItem(tabName = "analysis",
-        fluidRow(
-          box(
-            title = "Model Configuration", status = "primary", solidHeader = TRUE, width = 6,
+        # Show message when no data uploaded
+        conditionalPanel(
+          condition = "!output.dataUploaded",
+          fluidRow(
+            box(
+              title = "Analysis Configuration", solidHeader = TRUE, width = 12,
+              div(class = "alert alert-info", style = "text-align: center; margin: 50px 0;",
+                h4(icon("chart-line"), " Change Point Analysis"),
+                p("Upload your data in the 'Data Upload' tab first, then return here to configure and run your analysis."),
+                p("The configuration options will appear automatically once data is loaded.")
+              )
+            )
+          )
+        ),
+        
+        # Show configuration when data is uploaded
+        conditionalPanel(
+          condition = "output.dataUploaded",
+          fluidRow(
+            box(
+            title = "Model Configuration", solidHeader = TRUE, width = 6,
             selectInput("family", "Choose Detection Method:",
               choices = list(
                 "Basic Statistics" = list(
@@ -210,10 +358,10 @@ ui <- dashboardPage(
           ),
           
           box(
-            title = "Detection Parameters", status = "warning", solidHeader = TRUE, width = 6,
+            title = "Detection Parameters", solidHeader = TRUE, width = 6,
             
             # Penalty criterion section
-            h5("Penalty Criterion", style = "margin-bottom: 10px;"),
+            h5("Penalty Criterion", style = "margin-bottom: 5px;"),
             selectInput("beta", NULL,
               choices = list(
                 "MBIC (Recommended)" = "MBIC", 
@@ -227,70 +375,67 @@ ui <- dashboardPage(
               condition = "input.beta == 'custom'",
               numericInput("beta_value", "Custom Beta Value:", value = 10, min = 0, step = 0.1)
             ),
-            helpText("Higher values = fewer change points detected"),
-            
-            hr(),
+            helpText("Higher values = fewer change points detected", style = "margin-bottom: 15px;"),
             
             # Algorithm parameters
-            h5("Algorithm Parameters", style = "margin-bottom: 10px;"),
+            h5("Algorithm Parameters", style = "margin-bottom: 5px;"),
             
             fluidRow(
               column(6,
                 numericInput("trim", "Trimming:", 
                            value = 0.05, min = 0, max = 0.5, step = 0.01),
-                helpText("Minimum segment proportion")
+                helpText("Min segment %", style = "margin-bottom: 0;")
               ),
               column(6,
                 numericInput("segment_count", "Initial Segments:", 
                            value = 10, min = 1, max = 100),
-                helpText("Starting estimate")
+                helpText("Starting estimate", style = "margin-bottom: 0;")
               )
             ),
             
-            hr(),
-            
-            # Output options
-            h5("Output Options", style = "margin-bottom: 10px;"),
-            checkboxInput("cp_only", "Change Points Only", FALSE),
-            helpText("Uncheck to get detailed parameters and residuals")
-          )
-        ),
-        
-        fluidRow(
-          box(
-            title = "Run Analysis", status = "success", solidHeader = TRUE, width = 12,
-            div(style = "text-align: center;",
-                actionButton("runAnalysis", "Run Change Point Detection", 
-                           class = "btn-primary btn-lg", icon = icon("play")),
-                br(), br(),
-                uiOutput("analysisStatus")
+            # Output options and run button in same row
+            fluidRow(
+              column(6,
+                h5("Output Options", style = "margin-bottom: 5px; margin-top: 15px;"),
+                checkboxInput("cp_only", "Change Points Only", FALSE),
+                helpText("Uncheck for details", style = "margin-bottom: 0;")
+              ),
+              column(6,
+                div(style = "text-align: center; margin-top: 15px;",
+                    actionButton("runAnalysis", "Run Analysis", 
+                               class = "btn-primary btn-lg", icon = icon("play")),
+                    br(),
+                    uiOutput("analysisStatus")
+                )
+              )
             )
           )
-        )
+        ) # Close fluidRow
+        ) # Close conditional panel for data uploaded
       ),
       
       # Results Tab
       tabItem(tabName = "results",
         fluidRow(
           box(
-            title = "Analysis Summary", status = "primary", solidHeader = TRUE, width = 12,
+            title = "Analysis Summary", solidHeader = TRUE, width = 12,
             uiOutput("resultsSummary")
           )
         ),
         fluidRow(
           box(
-            title = "Technical Details", status = "info", solidHeader = TRUE, width = 12,
+            title = "Technical Details", solidHeader = TRUE, width = 12,
             collapsible = TRUE, collapsed = TRUE,
             verbatimTextOutput("detailedResults")
           )
         ),
         fluidRow(
           box(
-            title = "Change Points Summary", status = "info", solidHeader = TRUE, width = 6,
+            title = "Change Points Summary", solidHeader = TRUE, width = 6,
             DT::dataTableOutput("changePointsTable")
           ),
           box(
-            title = "Model Parameters", status = "success", solidHeader = TRUE, width = 6,
+            title = "Model Parameters", solidHeader = TRUE, width = 6,
             DT::dataTableOutput("parametersTable")
           )
         )
@@ -298,24 +443,61 @@ ui <- dashboardPage(
       
       # Visualization Tab
       tabItem(tabName = "plots",
-        fluidRow(
-          box(
-            title = "Data Visualization", status = "primary", solidHeader = TRUE, width = 12,
-            plotlyOutput("dataPlot", height = "400px")
-          )
-        ),
-        fluidRow(
-          box(
-            title = "Change Points Plot", status = "info", solidHeader = TRUE, width = 12,
-            plotlyOutput("changePointsPlot", height = "400px")
-          )
-        ),
+        # Only show plots when data is uploaded
         conditionalPanel(
-          condition = "output.showResiduals",
+          condition = "output.dataUploaded",
           fluidRow(
             box(
-              title = "Residuals Plot", status = "success", solidHeader = TRUE, width = 12,
-              plotlyOutput("residualsPlot", height = "300px")
+              title = "Data Visualization", solidHeader = TRUE, width = 12,
+              plotlyOutput("dataPlot", height = "350px")
+            )
+          )
+        ),
+        
+        # Only show change points plot when analysis results are available
+        conditionalPanel(
+          condition = "output.hasResults",
+          fluidRow(
+            box(
+              title = "Change Points Plot", solidHeader = TRUE, width = 12,
+              plotlyOutput("changePointsPlot", height = "350px")
+            )
+          ),
+          conditionalPanel(
+            condition = "output.showResiduals",
+            fluidRow(
+              box(
+                title = "Residuals Plot", solidHeader = TRUE, width = 12,
+                plotlyOutput("residualsPlot", height = "300px")
+              )
+            )
+          )
+        ),
+        
+        # Show message when data is uploaded but no analysis results yet
+        conditionalPanel(
+          condition = "output.dataUploaded && !output.hasResults",
+          fluidRow(
+            box(
+              title = "Change Points Analysis", solidHeader = TRUE, width = 12,
+              div(class = "alert alert-info", style = "text-align: center; margin: 30px 0;",
+                h5(icon("chart-line"), " Run Analysis to See Change Points"),
+                p("Your data is ready! Go to the 'Analysis' tab and click 'Run Analysis' to see the change points visualization here.")
+              )
+            )
+          )
+        ),
+        
+        # Show message when no data uploaded
+        conditionalPanel(
+          condition = "!output.dataUploaded",
+          fluidRow(
+            box(
+              title = "Visualization", solidHeader = TRUE, width = 12,
+              div(class = "alert alert-info", style = "text-align: center; margin: 50px 0;",
+                h4(icon("chart-area"), " Data Visualization"),
+                p("Upload data in the 'Data Upload' tab to see interactive visualizations of your data and detected change points.")
+              )
             )
           )
         )
@@ -325,8 +507,8 @@ ui <- dashboardPage(
       tabItem(tabName = "help",
         fluidRow(
           box(
-            title = "Quick Start Guide", status = "primary", solidHeader = TRUE, width = 6,
-            h4("📋 Step-by-Step"),
+            title = "Quick Start Guide", solidHeader = TRUE, width = 6,
+            h4("Getting Started"),
             tags$ol(
               tags$li(tags$b("Upload Data:"), "CSV file in the 'Data Upload' tab"),
               tags$li(tags$b("Choose Method:"), "Select detection method in 'Analysis' tab"),
@@ -335,26 +517,26 @@ ui <- dashboardPage(
               tags$li(tags$b("View Results:"), "Check 'Results' and 'Visualization' tabs")
             ),
             
-            h4("🎯 Sample Data"),
+            h4("Sample Datasets"),
             p("Try the sample datasets in the", code("sample_data/"), "folder:"),
             tags$ul(
               tags$li(code("mean_change.csv"), "→ Mean Change"),
-              tags$li(code("linear_regression.csv"), "→ Linear Regression"),
-              tags$li(code("ar_timeseries.csv"), "→ AR(1) Model")
+              tags$li(code("variance_change.csv"), "→ Variance Change"),
+              tags$li(code("linear_regression.csv"), "→ Linear Regression")
             )
           ),
           
           box(
-            title = "Detection Methods", status = "info", solidHeader = TRUE, width = 6,
+            title = "Detection Methods", solidHeader = TRUE, width = 6,
             
-            h5("📊 Basic Statistics"),
+            h5("Basic Statistics"),
             tags$ul(
               tags$li(tags$b("Mean Change:"), "Shifts in average values"),
               tags$li(tags$b("Variance Change:"), "Changes in data variability"),
               tags$li(tags$b("Mean & Variance:"), "Both types simultaneously")
             ),
             
-            h5("📈 Regression Models"),
+            h5("Regression Models"),
             tags$ul(
               tags$li(tags$b("Linear:"), "Changes in linear relationships"),
               tags$li(tags$b("Logistic:"), "Binary outcome changes"),
@@ -362,7 +544,7 @@ ui <- dashboardPage(
               tags$li(tags$b("Lasso:"), "Penalized regression with selection")
             ),
             
-            h5("⏱️ Time Series Models"),
+            h5("Time Series Models"),
             tags$ul(
               tags$li(tags$b("AR(p):"), "Autoregressive dependencies"),
               tags$li(tags$b("ARMA(p,q):"), "Combined AR + MA terms"),
@@ -375,11 +557,11 @@ ui <- dashboardPage(
         
         fluidRow(
           box(
-            title = "Data Format Requirements", status = "warning", solidHeader = TRUE, width = 12,
+            title = "Data Format Requirements", solidHeader = TRUE, width = 12,
             
             fluidRow(
               column(4,
-                h5("📈 Basic Statistics"),
+                h5("Basic Statistics"),
                 div(class = "well",
                   tags$ul(
                     tags$li("Single or multiple columns"),
@@ -395,7 +577,7 @@ ui <- dashboardPage(
               ),
               
               column(4,
-                h5("📊 Regression Data"),
+                h5("Regression Data"),
                 div(class = "well",
                   tags$ul(
                     tags$li("First column: response (y)"),
@@ -411,7 +593,7 @@ ui <- dashboardPage(
               ),
               
               column(4,
-                h5("⏱️ Time Series"),
+                h5("Time Series"),
                 div(class = "well",
                   tags$ul(
                     tags$li("Single column for univariate"),
@@ -431,11 +613,11 @@ ui <- dashboardPage(
         
         fluidRow(
           box(
-            title = "Parameter Guidelines", status = "success", solidHeader = TRUE, width = 12,
+            title = "Parameter Guidelines", solidHeader = TRUE, width = 12,
             
             fluidRow(
               column(6,
-                h5("🎯 Penalty Criteria"),
+                h5("Penalty Criteria"),
                 tags$ul(
                   tags$li(tags$b("MBIC (Recommended):"), "Balanced detection"),
                   tags$li(tags$b("BIC:"), "Conservative, fewer change points"),
@@ -444,7 +626,7 @@ ui <- dashboardPage(
                 )
               ),
               column(6,
-                h5("⚙️ Algorithm Settings"),
+                h5("Algorithm Settings"),
                 tags$ul(
                   tags$li(tags$b("Trimming:"), "Minimum segment size (0.05 = 5%)"),
                   tags$li(tags$b("Initial Segments:"), "Starting guess (usually 10)"),

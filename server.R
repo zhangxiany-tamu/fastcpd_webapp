@@ -27,13 +27,25 @@ server <- function(input, output, session) {
       )
     }, error = function(e) {
       showNotification(
-        paste("📁 Error reading file:", e$message), 
+        paste("Error reading file:", e$message), 
         duration = 8, 
         closeButton = TRUE,
         type = "error"
       )
     })
   })
+  
+  # Reactive output to control conditional panels
+  output$dataUploaded <- reactive({
+    !is.null(values$data)
+  })
+  outputOptions(output, "dataUploaded", suspendWhenHidden = FALSE)
+  
+  # Reactive output to control analysis results sections
+  output$hasResults <- reactive({
+    !is.null(values$result)
+  })
+  outputOptions(output, "hasResults", suspendWhenHidden = FALSE)
   
   # Data preview
   output$dataPreview <- DT::renderDataTable({
@@ -45,13 +57,13 @@ server <- function(input, output, session) {
   # Enhanced data summary with statistics
   output$dataSummary <- renderPrint({
     if (!is.null(values$data)) {
-      cat("📊 DATASET INFORMATION\n")
-      cat("======================\n")
-      cat("📏 Dimensions:", nrow(values$data), "rows ×", ncol(values$data), "columns\n")
-      cat("📋 Variables:", paste(names(values$data), collapse = ", "), "\n\n")
+      cat("DATASET INFORMATION\n")
+      cat("===================\n")
+      cat("Dimensions:", nrow(values$data), "rows ×", ncol(values$data), "columns\n")
+      cat("Variables:", paste(names(values$data), collapse = ", "), "\n\n")
       
-      cat("📈 SUMMARY STATISTICS\n")
-      cat("=====================\n")
+      cat("SUMMARY STATISTICS\n")
+      cat("==================\n")
       
       # Enhanced summary for each column
       for (i in 1:ncol(values$data)) {
@@ -59,21 +71,21 @@ server <- function(input, output, session) {
         col_data <- values$data[, i]
         
         if (is.numeric(col_data)) {
-          cat("\n🔢", col_name, "(numeric):\n")
+          cat("\n", col_name, "(numeric):\n")
           cat("   Min:", sprintf("%.3f", min(col_data, na.rm = TRUE)), "\n")
           cat("   Max:", sprintf("%.3f", max(col_data, na.rm = TRUE)), "\n")
           cat("   Mean:", sprintf("%.3f", mean(col_data, na.rm = TRUE)), "\n")
           cat("   Std Dev:", sprintf("%.3f", sd(col_data, na.rm = TRUE)), "\n")
           cat("   Missing:", sum(is.na(col_data)), "values\n")
         } else {
-          cat("\n📝", col_name, "(non-numeric):\n")
+          cat("\n", col_name, "(non-numeric):\n")
           cat("   Unique values:", length(unique(col_data)), "\n")
           cat("   Missing:", sum(is.na(col_data)), "values\n")
         }
       }
       
-      cat("\n📋 DATA QUALITY\n")
-      cat("===============\n")
+      cat("\nDATA QUALITY\n")
+      cat("============\n")
       total_missing <- sum(is.na(values$data))
       total_cells <- nrow(values$data) * ncol(values$data)
       cat("Missing values:", total_missing, "out of", total_cells, 
@@ -108,22 +120,114 @@ server <- function(input, output, session) {
           showlegend = FALSE
         )
       } else if (ncol(values$data) <= 4) {
-        # Few variables: correlation heatmap
+        # For regression data: create a more informative visualization
         numeric_data <- values$data[sapply(values$data, is.numeric)]
-        if (ncol(numeric_data) > 1) {
-          cor_matrix <- cor(numeric_data, use = "complete.obs")
-          p <- plot_ly(
-            z = cor_matrix,
-            type = "heatmap",
-            colorscale = "RdBu"
-          )
-          p <- layout(p,
-            title = list(text = "Correlation Matrix", font = list(size = 14))
-          )
+        if (ncol(numeric_data) >= 2) {
+          # Determine if this looks like regression data (first column as response)
+          if (ncol(numeric_data) == 3) {
+            # 3 variables: likely y, x1, x2 regression format
+            # Create subplot showing response vs each predictor
+            
+            # Response vs first predictor
+            p1 <- plot_ly(
+              x = numeric_data[, 2],
+              y = numeric_data[, 1],
+              type = "scatter",
+              mode = "markers",
+              name = paste(names(numeric_data)[1], "vs", names(numeric_data)[2]),
+              marker = list(size = 6, opacity = 0.7, color = "#1f77b4")
+            )
+            
+            # Add trend line for first predictor
+            fit1 <- lm(numeric_data[, 1] ~ numeric_data[, 2])
+            p1 <- add_trace(p1,
+              x = numeric_data[, 2],
+              y = fitted(fit1),
+              type = "scatter",
+              mode = "lines",
+              name = "Trend",
+              line = list(color = "#d62728", width = 2),
+              showlegend = FALSE
+            )
+            
+            # Response vs second predictor
+            p2 <- plot_ly(
+              x = numeric_data[, 3],
+              y = numeric_data[, 1],
+              type = "scatter",
+              mode = "markers",
+              name = paste(names(numeric_data)[1], "vs", names(numeric_data)[3]),
+              marker = list(size = 6, opacity = 0.7, color = "#ff7f0e")
+            )
+            
+            # Add trend line for second predictor
+            fit2 <- lm(numeric_data[, 1] ~ numeric_data[, 3])
+            p2 <- add_trace(p2,
+              x = numeric_data[, 3],
+              y = fitted(fit2),
+              type = "scatter",
+              mode = "lines",
+              name = "Trend",
+              line = list(color = "#d62728", width = 2),
+              showlegend = FALSE
+            )
+            
+            # Create subplot
+            p <- subplot(p1, p2, nrows = 1, shareY = TRUE, titleX = TRUE) %>%
+              layout(
+                title = list(text = "Response vs Predictors", font = list(size = 14)),
+                annotations = list(
+                  list(x = 0.2, y = 1.05, text = names(numeric_data)[2], showarrow = FALSE, xref = "paper", yref = "paper"),
+                  list(x = 0.8, y = 1.05, text = names(numeric_data)[3], showarrow = FALSE, xref = "paper", yref = "paper")
+                ),
+                showlegend = FALSE
+              )
+            
+          } else {
+            # 2 variables or more than 3: simple scatter with trend
+            p <- plot_ly(
+              x = numeric_data[, 2],
+              y = numeric_data[, 1],
+              type = "scatter",
+              mode = "markers",
+              name = "Data Points",
+              marker = list(size = 8, opacity = 0.7, color = "#1f77b4")
+            )
+            
+            # Add trend line
+            fit <- lm(numeric_data[, 1] ~ numeric_data[, 2])
+            p <- add_trace(p,
+              x = numeric_data[, 2],
+              y = fitted(fit),
+              type = "scatter",
+              mode = "lines",
+              name = "Linear Trend",
+              line = list(color = "#d62728", width = 3)
+            )
+            
+            # Add R-squared annotation
+            r_squared <- summary(fit)$r.squared
+            p <- layout(p,
+              title = list(text = paste("Relationship:", names(numeric_data)[1], "vs", names(numeric_data)[2]), font = list(size = 14)),
+              xaxis = list(title = names(numeric_data)[2]),
+              yaxis = list(title = names(numeric_data)[1]),
+              annotations = list(
+                list(
+                  x = 0.02, y = 0.98, 
+                  text = paste("R² =", round(r_squared, 3)),
+                  showarrow = FALSE, 
+                  xref = "paper", yref = "paper",
+                  bgcolor = "rgba(255,255,255,0.8)",
+                  bordercolor = "black",
+                  borderwidth = 1
+                )
+              )
+            )
+          }
         } else {
           p <- plot_ly() 
           p <- add_annotations(p,
-            text = "Single variable\nNo correlation plot",
+            text = "Need at least 2 variables\nfor relationship plot",
             x = 0.5, y = 0.5,
             showarrow = FALSE
           )
@@ -296,7 +400,7 @@ server <- function(input, output, session) {
       
       values$result <- result
       showNotification(
-        "✅ Analysis completed successfully!", 
+        "Analysis completed successfully!", 
         duration = 5, 
         closeButton = TRUE,
         type = "message"
@@ -304,7 +408,7 @@ server <- function(input, output, session) {
       
     }, error = function(e) {
       showNotification(
-        paste("❌ Analysis failed:", e$message), 
+        paste("Analysis failed:", e$message), 
         duration = 10, 
         closeButton = TRUE,
         type = "error"
@@ -393,40 +497,40 @@ server <- function(input, output, session) {
   # Detailed results (collapsible)
   output$detailedResults <- renderPrint({
     if (!is.null(values$result)) {
-      cat("🔍 TECHNICAL DETAILS\n")
-      cat("===================\n\n")
+      cat("TECHNICAL DETAILS\n")
+      cat("=================\n\n")
       
       # Show technical information without duplicating summary
-      cat("📋 Object Class:", class(values$result)[1], "\n")
-      cat("📊 Family:", values$result@family, "\n")
-      cat("📏 Data Dimensions:", nrow(values$data), "×", ncol(values$data), "\n")
+      cat("Object Class:", class(values$result)[1], "\n")
+      cat("Family:", values$result@family, "\n")
+      cat("Data Dimensions:", nrow(values$data), "×", ncol(values$data), "\n")
       
       if (length(values$result@cp_set) > 0) {
-        cat("📍 Raw Change Points:", paste(values$result@cp_set, collapse = ", "), "\n")
+        cat("Raw Change Points:", paste(values$result@cp_set, collapse = ", "), "\n")
       } else {
-        cat("📍 Raw Change Points: None detected\n")
+        cat("Raw Change Points: None detected\n")
       }
       
       if (length(values$result@cost_values) > 0) {
-        cat("💰 Cost Values (first 5):", paste(head(values$result@cost_values, 5), collapse = ", "), 
+        cat("Cost Values (first 5):", paste(head(values$result@cost_values, 5), collapse = ", "), 
             if(length(values$result@cost_values) > 5) "..." else "", "\n")
       }
       
       if (ncol(values$result@thetas) > 0) {
-        cat("🔢 Parameter Matrix:", ncol(values$result@thetas), "segments ×", nrow(values$result@thetas), "parameters\n")
+        cat("Parameter Matrix:", ncol(values$result@thetas), "segments ×", nrow(values$result@thetas), "parameters\n")
       }
       
       if (length(values$result@residuals) > 0) {
-        cat("📈 Residuals:", length(values$result@residuals), "values (range:", 
+        cat("Residuals:", length(values$result@residuals), "values (range:", 
             sprintf("%.3f", min(values$result@residuals, na.rm = TRUE)), "to", 
             sprintf("%.3f", max(values$result@residuals, na.rm = TRUE)), ")\n")
       }
       
-      cat("\n📞 Original Function Call:\n")
-      cat("========================\n")
+      cat("\nOriginal Function Call:\n")
+      cat("======================\n")
       print(values$result@call)
       
-      cat("\n💡 Note: Detailed summary is shown in the Analysis Summary section above.")
+      cat("\nNote: Detailed summary is shown in the Analysis Summary section above.")
       
     } else {
       cat("No technical details available.")
@@ -529,19 +633,91 @@ server <- function(input, output, session) {
           yaxis = list(title = "Value")
         )
       } else {
-        # Multivariate data - plot first column
-        p <- plot_ly(
-          x = 1:nrow(values$data),
-          y = values$data[, 1],
-          type = "scatter",
-          mode = "lines+markers",
-          name = names(values$data)[1]
-        )
-        p <- layout(p,
-          title = "Data Overview (First Column)",
-          xaxis = list(title = "Index"),
-          yaxis = list(title = "Value")
-        )
+        # Multivariate data - create appropriate visualization for regression
+        if (ncol(values$data) == 3) {
+          # Likely regression data (y, x1, x2) - create multi-panel view
+          
+          # Panel 1: Response variable over time
+          p1 <- plot_ly(
+            x = 1:nrow(values$data),
+            y = values$data[, 1],
+            type = "scatter",
+            mode = "lines+markers",
+            name = names(values$data)[1],
+            line = list(color = "#1f77b4", width = 2),
+            marker = list(size = 5)
+          ) %>%
+          layout(
+            yaxis = list(title = names(values$data)[1]),
+            xaxis = list(title = "")
+          )
+          
+          # Panel 2: First predictor over time
+          p2 <- plot_ly(
+            x = 1:nrow(values$data),
+            y = values$data[, 2],
+            type = "scatter",
+            mode = "lines+markers",
+            name = names(values$data)[2],
+            line = list(color = "#ff7f0e", width = 2),
+            marker = list(size = 5)
+          ) %>%
+          layout(
+            yaxis = list(title = names(values$data)[2]),
+            xaxis = list(title = "")
+          )
+          
+          # Panel 3: Second predictor over time
+          p3 <- plot_ly(
+            x = 1:nrow(values$data),
+            y = values$data[, 3],
+            type = "scatter",
+            mode = "lines+markers",
+            name = names(values$data)[3],
+            line = list(color = "#2ca02c", width = 2),
+            marker = list(size = 5)
+          ) %>%
+          layout(
+            yaxis = list(title = names(values$data)[3]),
+            xaxis = list(title = "Observation Index")
+          )
+          
+          # Create subplot with shared x-axis
+          p <- subplot(p1, p2, p3, nrows = 3, shareX = TRUE, titleY = TRUE) %>%
+            layout(
+              title = list(text = "Regression Variables Over Time", font = list(size = 14)),
+              showlegend = FALSE,
+              height = 330
+            )
+            
+        } else {
+          # General multivariate case - show all variables
+          p <- plot_ly()
+          
+          # Add traces for each column with different colors
+          colors <- c("#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#8c564b")
+          
+          for (i in 1:ncol(values$data)) {
+            if (is.numeric(values$data[, i])) {
+              p <- add_trace(p,
+                x = 1:nrow(values$data),
+                y = values$data[, i],
+                type = "scatter",
+                mode = "lines+markers",
+                name = names(values$data)[i],
+                line = list(width = 2, color = colors[((i-1) %% length(colors)) + 1]),
+                marker = list(size = 4)
+              )
+            }
+          }
+          
+          p <- layout(p,
+            title = "Data Overview (All Variables)",
+            xaxis = list(title = "Observation Index"),
+            yaxis = list(title = "Value"),
+            legend = list(orientation = "h", y = -0.1)
+          )
+        }
       }
       p
     }

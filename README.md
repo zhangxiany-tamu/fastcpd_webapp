@@ -12,16 +12,14 @@ A Shiny web interface for the [fastcpd](https://github.com/doccstat/fastcpd) R p
 
 ## Quick Start
 
-1. **Install Dependencies**
-   ```r
-   install.packages(c("shiny", "shinydashboard", "DT", "plotly", "fastcpd"))
+1. **Install Dependencies** (from terminal)
+   ```bash
+   Rscript -e "install.packages(c('shiny', 'shinydashboard', 'DT', 'plotly', 'fastcpd'))"
    ```
 
-2. **Run the Application**
+2. **Run the Application** (one-line start)
    ```bash
-   git clone https://github.com/zhangxiany-tamu/fastcpd_webapp.git
-   cd fastcpd_webapp
-   ./run_app.sh
+   git clone https://github.com/zhangxiany-tamu/fastcpd_webapp.git && cd fastcpd_webapp && Rscript -e "shiny::runApp(host='0.0.0.0', port=3838)"
    ```
 
 3. **Use the Interface**
@@ -34,6 +32,8 @@ A Shiny web interface for the [fastcpd](https://github.com/doccstat/fastcpd) R p
 - **Basic Statistics**: Mean, variance, and mean+variance changes
 - **Regression**: Linear, logistic, Poisson, and LASSO regression
 - **Time Series**: AR, ARMA, ARIMA, GARCH, and VAR models
+
+*Note: Sample data is provided for mean, variance, and linear regression methods.*
 
 ## Data Requirements
 
