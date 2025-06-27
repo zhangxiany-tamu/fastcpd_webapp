@@ -7,3 +7,5 @@ upload_to_github.sh
 install_packages.R
 IMPROVEMENTS.md
 PROJECT_STRUCTURE.md
+renv.lock
+deploy.R
