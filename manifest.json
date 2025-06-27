@@ -1,0 +1,49 @@
+{
+  "version": 1,
+  "locale": "en_US.UTF-8",
+  "metadata": {
+    "appmode": "shiny",
+    "entrypoint": "app.R"
+  },
+  "packages": {
+    "R": [
+      {
+        "package": "shiny",
+        "version": "1.7.0",
+        "source": "CRAN"
+      },
+      {
+        "package": "shinydashboard",
+        "version": "0.7.0",
+        "source": "CRAN"
+      },
+      {
+        "package": "DT",
+        "version": "0.20",
+        "source": "CRAN"
+      },
+      {
+        "package": "plotly",
+        "version": "4.10.0",
+        "source": "CRAN"
+      },
+      {
+        "package": "fastcpd",
+        "version": "0.14.0",
+        "source": "CRAN"
+      }
+    ]
+  },
+  "files": {
+    "app.R": {
+      "checksum": "5d41402abc4b2a76b9719d911017c592"
+    },
+    "ui.R": {
+      "checksum": "5d41402abc4b2a76b9719d911017c592"
+    },
+    "server.R": {
+      "checksum": "5d41402abc4b2a76b9719d911017c592"
+    }
+  },
+  "users": null
+}

@@ -1,0 +1,8 @@
+Title: fastcpd Web Application
+Type: Shiny
+Imports:
+    shiny,
+    shinydashboard,
+    DT,
+    plotly,
+    fastcpd
