@@ -1,9 +1,15 @@
+Package: fastcpdapp
 Title: fastcpd Web Application
+Version: 1.0.0
 Type: Shiny
 DisplayMode: Showcase
+Depends: R (>= 3.5.0)
 Imports:
-    shiny (>= 1.7.0),
-    shinydashboard (>= 0.7.0),
-    DT (>= 0.20),
-    plotly (>= 4.10.0),
-    fastcpd (>= 0.14.0)
+    shiny,
+    shinydashboard,
+    DT,
+    plotly,
+    fastcpd
+Description: Web application for change point detection using the fastcpd package.
+License: GPL-3
+Encoding: UTF-8
