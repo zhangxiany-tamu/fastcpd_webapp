@@ -4,10 +4,10 @@
   "platform": "4.5.0",
   "metadata": {
     "appmode": "shiny",
-    "entrypoint": "server.R",
+    "entrypoint": "app.R",
     "primary_rmd": null,
     "primary_html": null,
-    "content_category": "shiny",
+    "content_category": null,
     "has_parameters": false
   },
   "environment": {
