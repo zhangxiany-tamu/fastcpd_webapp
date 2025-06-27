@@ -1,5 +1,6 @@
 {
-    "version": 1,
-    "appmode": "shiny",
-    "content_category": "application"
+  "version": 1,
+  "platform": "4.5.0",
+  "appmode": "shiny",
+  "content_category": "application"
 }
